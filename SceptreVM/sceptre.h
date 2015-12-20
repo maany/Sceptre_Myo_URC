@@ -9,9 +9,6 @@ This header file defines the wrappers from MyoController and IRRemote  libraries
 #include<MyoController.h>
 #define SCEPTRE_NO_OF_DEVICES 5
 #define GESTURE_MAP_SIZE 5
-
-
-
 //===============================
 // Gesture to Array Index Mapping
 //===============================
@@ -37,9 +34,9 @@ public:
 };
 // Represents a remote controlled device such as TV, AC etc
 class Device {
-	static int superId;
 	int id;
 public:
+	static int superId;
 	Device();
 	Device(char* name);
 	char* name;
@@ -64,8 +61,7 @@ public:
 	void sendCode(int repeat);
 	Code* storeCode(decode_results *results); // turns on mapping request and returns the code to be mapped
 	void mapCodeToGesture(Code* code);// wait till a gesture is received, then map the code to it as per mapping request
-	virtual void printDebugMessage(char* message);
-	virtual void printDebugCodeValue(unsigned int code, int param);
+	Code decodeAndGetCode();
 };
 #endif
 

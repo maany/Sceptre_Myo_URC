@@ -7,10 +7,12 @@ Author : Mayank Sharma
 #define HEX 16
 #define DEC 10
 
+int SEND_MODE_DETECTED_MYO_GESTURE = 9;
+int Device::superId = 0;
 // Default Device contructor. Sets device's id and default name
 Device::Device() {
 	id = superId;
-	superId++;
+	superId = superId + 1;
 	name = "unnamed device";
 }
 // This constructor sets the given name and id for a device
@@ -36,7 +38,21 @@ Device* Sceptre::getActiveDevice() {
 }
 void Sceptre::sendCode(int repeat) {
 	Device* activeDevice = &deviceList[activeDeviceIndex];
-	Code code = activeDevice->gestureCodeMap[myo.getGestureCode()];
+	
+	int gestureCode = myo.getGestureCode();
+	if (gestureCode == -1) {
+		Serial.println("myo at rest");
+		digitalWrite(SEND_MODE_DETECTED_MYO_GESTURE, LOW);
+		return;
+	}
+	Code code = activeDevice->gestureCodeMap[gestureCode];
+	digitalWrite(SEND_MODE_DETECTED_MYO_GESTURE, HIGH);
+	delay(200);
+	digitalWrite(SEND_MODE_DETECTED_MYO_GESTURE, LOW);
+	delay(200);
+	digitalWrite(SEND_MODE_DETECTED_MYO_GESTURE, HIGH);
+	delay(200);
+	digitalWrite(SEND_MODE_DETECTED_MYO_GESTURE, LOW);
 	int codeType = code.codeType;
 	unsigned long codeValue = code.codeValue;
 	unsigned int* rawCodes = code.rawCodes;
@@ -45,18 +61,18 @@ void Sceptre::sendCode(int repeat) {
 	if (codeType == NEC) {
 		if (repeat) {
 			irsend.sendNEC(REPEAT, codeLen);
-			printDebugMessage("Sent NEC repeat");
+			Serial.println("Sent NEC repeat");
 		}
 		else {
 			irsend.sendNEC(codeValue, codeLen);
-			printDebugMessage("Sent NEC ");
-			printDebugCodeValue(codeValue, HEX);
+			Serial.print("Sent NEC ");
+			Serial.println(codeValue, HEX);
 		}
 	}
 	else if (codeType == SONY) {
 		irsend.sendSony(codeValue, codeLen);
-		printDebugMessage("Sent Sony ");
-		printDebugCodeValue(codeValue, HEX);
+		Serial.print("Sent Sony ");
+		Serial.println(codeValue, HEX);
 	}
 	else if (codeType == RC5 || codeType == RC6) {
 		if (!repeat) {
@@ -67,27 +83,27 @@ void Sceptre::sendCode(int repeat) {
 		codeValue = codeValue & ~(1 << (codeLen - 1));
 		codeValue = codeValue | (toggle << (codeLen - 1));
 		if (codeType == RC5) {
-			printDebugMessage("Sent RC5 ");
-			printDebugCodeValue(codeValue, HEX);
+			Serial.print("Sent RC5 ");
+			Serial.println(codeValue, HEX);
 			irsend.sendRC5(codeValue, codeLen);
 		}
 		else {
 			irsend.sendRC6(codeValue, codeLen);
-			printDebugMessage("Sent RC6 ");
-			printDebugCodeValue(codeValue, HEX);
+			Serial.print("Sent RC6 ");
+			Serial.println(codeValue, HEX);
 		}
 	}
 	else if (codeType == UNKNOWN /* i.e. raw */) {
 		// Assume 38 KHz
 		irsend.sendRaw(rawCodes, codeLen, 38);
-		printDebugMessage("Sent raw");
+		Serial.println("Sent raw");
 	}
 }
 // TODO If null is returned, do nothing
 Code* Sceptre::storeCode(decode_results* results) {
 	int gestureCode = myo.getGestureCode();
 	if (gestureCode == -1) {
-		printDebugMessage("Myo was at rest. Please redo gesture and then send the IR signal you want to map to");
+		Serial.println("Myo was at rest. Please redo gesture and then send the IR signal you want to map to");
 		return '\0';
 	}
 	int codeType = -1; // The type of code
@@ -99,7 +115,7 @@ Code* Sceptre::storeCode(decode_results* results) {
 	codeType = results->decode_type;
 	int count = results->rawlen;
 	if (codeType == UNKNOWN) {
-		printDebugMessage("Received unknown code, saving as raw");
+		Serial.println("Received unknown code, saving as raw");
 		codeLen = results->rawlen - 1;
 		// To store raw codes:
 		// Drop first value (gap)
@@ -109,41 +125,41 @@ Code* Sceptre::storeCode(decode_results* results) {
 			if (i % 2) {
 				// Mark
 				rawCodes[i - 1] = results->rawbuf[i] * USECPERTICK - MARK_EXCESS;
-				printDebugMessage(" m");
+				Serial.print(" m");
 			}
 			else {
 				// Space
 				rawCodes[i - 1] = results->rawbuf[i] * USECPERTICK + MARK_EXCESS;
-				printDebugMessage(" s");
+				Serial.print(" s");
 			}
-			printDebugCodeValue(rawCodes[i - 1], DEC);
+			Serial.print(rawCodes[i - 1], DEC);
 		}
-		printDebugMessage("");
+		Serial.println("");
 	}
 	else {
 		if (codeType == NEC) {
-			printDebugMessage("Received NEC: ");
+			Serial.print("Received NEC: ");
 			if (results->value == REPEAT) {
 				// Don't record a NEC repeat value as that's useless.
-				printDebugMessage("repeat; ignoring.");
+				Serial.println("repeat; ignoring.");
 				return '\0';
 			}
 		}
 		else if (codeType == SONY) {
-			printDebugMessage("Received SONY: ");
+			Serial.print("Received SONY: ");
 		}
 		else if (codeType == RC5) {
-			printDebugMessage("Received RC5: ");
+			Serial.print("Received RC5: ");
 		}
 		else if (codeType == RC6) {
-			printDebugMessage("Received RC6: ");
+			Serial.print("Received RC6: ");
 		}
 		else {
-			printDebugMessage("Unexpected codeType ");
-			printDebugCodeValue(codeType, DEC);
-			printDebugMessage("");
+			Serial.print("Unexpected codeType ");
+			Serial.print(codeType, DEC);
+			Serial.println("");
 		}
-		printDebugCodeValue(results->value, HEX);
+		Serial.println(results->value, HEX);
 		codeValue = results->value;
 		codeLen = results->bits;
 	}
@@ -168,6 +184,12 @@ void Sceptre::mapCodeToGesture(Code* code) {
 	if (!processing_previous_mapping_request || gestureCode == -1)
 		return;
 	deviceList[activeDeviceIndex].gestureCodeMap[gestureCode] = *code;
+}
+// TODO null test
+Code Sceptre::decodeAndGetCode() {
+	irrecv.decode(&results);
+	Code* code = storeCode(&results);
+	return *code;
 }
 Myo::Myo() {
 	myoController = MyoController();
@@ -194,6 +216,7 @@ int Myo::getGestureCode() {
 		gestureCode = FINGER_SPREAD;
 		break;
 	}
+	return gestureCode;
 }
 
 
