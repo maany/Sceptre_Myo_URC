@@ -52,19 +52,19 @@ void loop() {
 		sceptre.irrecv.enableIRIn();
 		Code* code = new Code();
 		code->codeValue = -1;
-		
-		while (sceptre.results.value ==-1) {
-			sceptre.irrecv.decode(&results);
-			sceptre.irrecv.resume();
-			Serial.print("Code value : "); Serial.println(sceptre.results.value, HEX);
-			//code = sceptre.decodeAndGetCode();
-			delay(1000);
+		while (code->codeType == -1) {
+			if (sceptre.irrecv.decode(&results)) {
+				
+				Serial.print("Code value from outside without pointer"); Serial.println(sceptre.storeCode(&results)->codeValue);
+				sceptre.irrecv.resume();
+				delay(100);
+			}
 		}
 		Serial.print("Code received is : "); Serial.println(code->codeValue,HEX);
 		digitalWrite(RECV_MODE_PIN, LOW);
 		
 		//Step 2: detect Myo gesture
-		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, HIGH);
+/*		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, HIGH);
 		Myo* myo = &sceptre.myo;
 		int gestureCode = -1;
 		while (gestureCode == -1) {
@@ -83,7 +83,7 @@ void loop() {
 		}
 		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, LOW);
 		//if myo was not at rest and then it comes to rest, 
-		
+	*/	
 
 	}
 

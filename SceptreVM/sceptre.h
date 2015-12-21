@@ -29,7 +29,7 @@ class Code {
 public:
 	Code(const Code &code);
 	Code();
-	int codeType = -1; // The type of code
+	int codeType = -1; // The type of code 
 	unsigned long codeValue; // The code value if not raw
 	unsigned int* rawCodes; // The durations if raw
 	int codeLen= -1; // The length of the code
@@ -52,8 +52,7 @@ private:
 	Device deviceList[SCEPTRE_NO_OF_DEVICES];
 	int activeDeviceIndex = 0;
 	IRsend irsend;
-	
-	int processing_previous_mapping_request = 0;
+//	int processing_previous_mapping_request = 0;
 public:
 	Myo myo;
 	decode_results results;

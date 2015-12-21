@@ -114,7 +114,8 @@ void Sceptre::sendCode(int repeat) {
 		Serial.println("Sent raw");
 	}
 }
-// takes care of reading gesture from Myo
+// Stores the code for later playback
+// Most of this code is just logging
 Code* Sceptre::storeCode(decode_results* results) {
 
 	int codeType = -1; // The type of code
@@ -178,9 +179,10 @@ Code* Sceptre::storeCode(decode_results* results) {
 	code.codeLen = codeLen;
 	code.codeType = codeType;
 	code.codeValue = codeValue;
+	Serial.print("code value from inside : "); Serial.println(codeValue,HEX);
 	code.toggle = toggle;
 	code.rawCodes = rawCodes;
-	processing_previous_mapping_request = 1;
+	//processing_previous_mapping_request = 1;
 	return &code;
 	//deviceList[activeDeviceIndex].gestureCodeMap[gestureCode] = code;	
 }
@@ -190,10 +192,11 @@ Code* Sceptre::storeCode(decode_results* results) {
 // other than rest to map the received code to.
 void Sceptre::mapCodeToGesture(Code* code) {
 	// if there is no code to be mapped or myo is at rest then return
-	int gestureCode = myo.getGestureCode();
+	/*int gestureCode = myo.getGestureCode();
 	if (!processing_previous_mapping_request || gestureCode == -1)
 		return;
 	deviceList[activeDeviceIndex].gestureCodeMap[gestureCode] = *code;
+	*/
 }
 // TODO To check if code is invalid, codeLength will be 0 or lesser
 Code* Sceptre::decodeAndGetCode() {
@@ -211,7 +214,7 @@ int Myo::getGestureCode() {
 	myoController.updatePose();
 	int gestureCode = -1;
 	switch(myoController.getCurrentPose()) {
-	case rest:
+	case rest: gestureCode = -1;
 		break;
 	case fist:
 		gestureCode = FIST;
