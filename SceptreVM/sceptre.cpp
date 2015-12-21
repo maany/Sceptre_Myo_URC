@@ -8,6 +8,20 @@ Author : Mayank Sharma
 #define DEC 10
 
 int SEND_MODE_DETECTED_MYO_GESTURE = 9;
+Code::Code(const Code& code) {
+	codeType = code.codeType;
+	codeLen = code.codeLen;
+	codeValue = code.codeValue;
+	rawCodes = code.rawCodes;
+	toggle = code.toggle;
+}
+Code::Code() {
+	codeType = -1;
+	codeLen = -1;
+	toggle = 0;
+	rawCodes = new unsigned int;
+	codeValue = -1;
+}
 int Device::superId = 0;
 // Default Device contructor. Sets device's id and default name
 Device::Device() {
@@ -25,6 +39,7 @@ Sceptre::Sceptre(int recv_pin):irrecv(recv_pin) {
 	irrecv= IRrecv(recv_pin);
 
 }
+
 int Sceptre::addDevice(Device* device) {
 	int returnVal = 1;
 	return returnVal;
@@ -99,19 +114,14 @@ void Sceptre::sendCode(int repeat) {
 		Serial.println("Sent raw");
 	}
 }
-// TODO If null is returned, do nothing
+// takes care of reading gesture from Myo
 Code* Sceptre::storeCode(decode_results* results) {
-	int gestureCode = myo.getGestureCode();
-	if (gestureCode == -1) {
-		Serial.println("Myo was at rest. Please redo gesture and then send the IR signal you want to map to");
-		return '\0';
-	}
+
 	int codeType = -1; // The type of code
 	unsigned long codeValue; // The code value if not raw
 	unsigned int rawCodes[RAWBUF]; // The durations if raw
 	int codeLen; // The length of the code
 	int toggle = 0; // The RC5/6 toggle state
-
 	codeType = results->decode_type;
 	int count = results->rawlen;
 	if (codeType == UNKNOWN) {
@@ -185,14 +195,17 @@ void Sceptre::mapCodeToGesture(Code* code) {
 		return;
 	deviceList[activeDeviceIndex].gestureCodeMap[gestureCode] = *code;
 }
-// TODO null test
-Code Sceptre::decodeAndGetCode() {
+// TODO To check if code is invalid, codeLength will be 0 or lesser
+Code* Sceptre::decodeAndGetCode() {
 	irrecv.decode(&results);
-	Code* code = storeCode(&results);
-	return *code;
+	return storeCode(&results);
 }
+
 Myo::Myo() {
 	myoController = MyoController();
+}
+Myo::Myo(const Myo& myo) {
+	myoController = myo.myoController;
 }
 int Myo::getGestureCode() {
 	myoController.updatePose();

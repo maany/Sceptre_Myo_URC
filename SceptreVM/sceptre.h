@@ -21,15 +21,18 @@ class Myo {
 	MyoController myoController;
 public:
 	Myo();
+	Myo(const Myo &myo);
 	int getGestureCode();
 };
 // Storage for the recorded code
 class Code {
 public:
+	Code(const Code &code);
+	Code();
 	int codeType = -1; // The type of code
 	unsigned long codeValue; // The code value if not raw
 	unsigned int* rawCodes; // The durations if raw
-	int codeLen; // The length of the code
+	int codeLen= -1; // The length of the code
 	int toggle = 0; // The RC5/6 toggle state
 };
 // Represents a remote controlled device such as TV, AC etc
@@ -49,10 +52,11 @@ private:
 	Device deviceList[SCEPTRE_NO_OF_DEVICES];
 	int activeDeviceIndex = 0;
 	IRsend irsend;
-	decode_results results;
-	Myo myo;
+	
 	int processing_previous_mapping_request = 0;
 public:
+	Myo myo;
+	decode_results results;
 	IRrecv irrecv; // decodes the incoming signal
 	Sceptre(int recv_pin);
 	int addDevice(Device* device);
@@ -61,7 +65,7 @@ public:
 	void sendCode(int repeat);
 	Code* storeCode(decode_results *results); // turns on mapping request and returns the code to be mapped
 	void mapCodeToGesture(Code* code);// wait till a gesture is received, then map the code to it as per mapping request
-	Code decodeAndGetCode();
+	Code* decodeAndGetCode();
 };
 #endif
 
