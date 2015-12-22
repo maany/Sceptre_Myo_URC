@@ -5,9 +5,9 @@
 */
 
 // the setup function runs once when you press reset or power the board
-#include <MyoController.h>
 #include <IRremoteInt.h>
 #include <IRremote.h>
+#include <MyoController.h>
 #include <sceptre.h>
 
 int RECV_PIN = 11;
@@ -54,8 +54,8 @@ void loop() {
 		code->codeValue = -1;
 		while (code->codeType == -1) {
 			if (sceptre.irrecv.decode(&results)) {
-				
-				Serial.print("Code value from outside without pointer"); Serial.println(sceptre.storeCode(&results)->codeValue);
+				code = sceptre.storeCode(&results);
+				Serial.print("Oustide file : "); Serial.println(code->codeValue, HEX);
 				sceptre.irrecv.resume();
 				delay(100);
 			}

@@ -3,10 +3,11 @@ Author : Mayank Sharma
 
 This header file defines the wrappers from MyoController and IRRemote  libraries
 */
-#ifndef SPECTRE
-#define SCEPTRE
-#include<IRremote.h>
-#include<MyoController.h>
+#ifndef SPECTRE_H
+#define SCEPTRE_H
+#include "IRremote.h"
+#include "IRremoteInt.h"
+#include "MyoController.h"
 #define SCEPTRE_NO_OF_DEVICES 5
 #define GESTURE_MAP_SIZE 5
 //===============================

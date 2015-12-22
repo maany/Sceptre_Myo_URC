@@ -9,6 +9,7 @@ Author : Mayank Sharma
 
 int SEND_MODE_DETECTED_MYO_GESTURE = 9;
 Code::Code(const Code& code) {
+	Serial.println("Copy constructor invoked maahn");
 	codeType = code.codeType;
 	codeLen = code.codeLen;
 	codeValue = code.codeValue;
@@ -175,15 +176,15 @@ Code* Sceptre::storeCode(decode_results* results) {
 		codeLen = results->bits;
 	}
 
-	Code code = Code();
-	code.codeLen = codeLen;
-	code.codeType = codeType;
-	code.codeValue = codeValue;
+	Code *code = new Code();
+	code->codeLen = codeLen;
+	code->codeType = codeType;
+	code->codeValue = codeValue;
 	Serial.print("code value from inside : "); Serial.println(codeValue,HEX);
-	code.toggle = toggle;
-	code.rawCodes = rawCodes;
+	code->toggle = toggle;
+	code->rawCodes = rawCodes;
 	//processing_previous_mapping_request = 1;
-	return &code;
+	return code;
 	//deviceList[activeDeviceIndex].gestureCodeMap[gestureCode] = code;	
 }
 // Call in the loop method of arduino. (so it automatically becomes recursive)
@@ -201,7 +202,8 @@ void Sceptre::mapCodeToGesture(Code* code) {
 // TODO To check if code is invalid, codeLength will be 0 or lesser
 Code* Sceptre::decodeAndGetCode() {
 	irrecv.decode(&results);
-	return storeCode(&results);
+	Code* code = storeCode(&results);
+	return code;
 }
 
 Myo::Myo() {
