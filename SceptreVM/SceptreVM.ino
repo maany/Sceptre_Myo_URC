@@ -48,25 +48,30 @@ void loop() {
 	else {
 		//receive mode
 		// Step 1 : read code from IR receiver 
+		// 2 stage code locking. i.e send same code twice to proceed. This is essential to avoid noise
 		digitalWrite(RECV_MODE_PIN, HIGH);
-		/*
+		
 		sceptre.irrecv.enableIRIn();
 		Code* code;
+		unsigned long prevCodeValue=0;
 		do
 		{
 			if (sceptre.irrecv.decode(&results)) {
+				prevCodeValue = code->codeValue;
 				code = sceptre.storeCode(&results);
-				//Serial.print("Oustide file : "); Serial.println(code->codeValue, HEX);
+				Serial.print("Previous Value : "); Serial.println(prevCodeValue, HEX);
+				Serial.print("Oustide file : "); Serial.println(code->codeValue, HEX);
 				sceptre.irrecv.resume();
 				delay(100);
 			}
-		} while (code->codeType == -1);
+		} while (prevCodeValue!=code->codeValue);
 		Serial.print("Code received is : "); Serial.println(code->codeValue,HEX);
-		*/
+		
 		digitalWrite(RECV_MODE_PIN, LOW);
 		
 		// Press button to begin gesture mapping i.e enter step 2
 		//Step 2: detect Myo gesture
+		
 		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, HIGH);
 		Myo* myo = &sceptre.myo;
 		int gestureCode;
@@ -83,9 +88,8 @@ void loop() {
 		case WAVE_OUT: resetMyoDebugPins(); digitalWrite(WAVE_OUT + 2, HIGH); Serial.println("Wave_Out");  break;
 		case FINGER_SPREAD: resetMyoDebugPins(); digitalWrite(FINGER_SPREAD + 2, HIGH); Serial.println("Finger Spread"); break;
 		}
-		while (1) {
-
-		}
+		//Step 3 Store gesture
+		Serial.println("store gesture");
 		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, LOW);
 		//if myo was not at rest and then it comes to rest, 
 		

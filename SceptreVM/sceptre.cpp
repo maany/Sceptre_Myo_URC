@@ -179,8 +179,9 @@ Code* Sceptre::storeCode(decode_results* results) {
 	Code *code = new Code();
 	code->codeLen = codeLen;
 	code->codeType = codeType;
-	code->codeValue = codeValue;
-	//Serial.print("code value from inside : "); Serial.println(codeValue,HEX);
+	code->codeValue = results->value;
+	Serial.print("code value from inside : "); Serial.println(code->codeValue,HEX);
+	Serial.print("result value from inside : "); Serial.println(results->value, HEX);
 	code->toggle = toggle;
 	code->rawCodes = rawCodes;
 	//processing_previous_mapping_request = 1;
@@ -205,7 +206,9 @@ Code* Sceptre::decodeAndGetCode() {
 	Code* code = storeCode(&results);
 	return code;
 }
-
+Code::~Code() {
+	Serial.println("Object is being destroyed");
+}
 Myo::Myo() {
 	myoController = MyoController();
 }

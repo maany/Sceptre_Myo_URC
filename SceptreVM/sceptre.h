@@ -35,6 +35,7 @@ public:
 	unsigned int* rawCodes; // The durations if raw
 	int codeLen= -1; // The length of the code
 	int toggle = 0; // The RC5/6 toggle state
+	~Code();
 };
 // Represents a remote controlled device such as TV, AC etc
 class Device {
