@@ -49,41 +49,46 @@ void loop() {
 		//receive mode
 		// Step 1 : read code from IR receiver 
 		digitalWrite(RECV_MODE_PIN, HIGH);
+		/*
 		sceptre.irrecv.enableIRIn();
-		Code* code = new Code();
-		code->codeValue = -1;
-		while (code->codeType == -1) {
+		Code* code;
+		do
+		{
 			if (sceptre.irrecv.decode(&results)) {
 				code = sceptre.storeCode(&results);
-				Serial.print("Oustide file : "); Serial.println(code->codeValue, HEX);
+				//Serial.print("Oustide file : "); Serial.println(code->codeValue, HEX);
 				sceptre.irrecv.resume();
 				delay(100);
 			}
-		}
+		} while (code->codeType == -1);
 		Serial.print("Code received is : "); Serial.println(code->codeValue,HEX);
+		*/
 		digitalWrite(RECV_MODE_PIN, LOW);
 		
+		// Press button to begin gesture mapping i.e enter step 2
 		//Step 2: detect Myo gesture
-/*		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, HIGH);
+		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, HIGH);
 		Myo* myo = &sceptre.myo;
-		int gestureCode = -1;
-		while (gestureCode == -1) {
+		int gestureCode;
+		do{
 			gestureCode = myo->getGestureCode();
-		}
+			delay(100);
+		} while (gestureCode == -1);
+
 		// Debug via LED's
 		switch (gestureCode) {
-		case DOUBLE_TAP: resetMyoDebugPins(); digitalWrite(DOUBLE_TAP +2, HIGH); break;
-		case FIST: resetMyoDebugPins(); digitalWrite(FIST +2, HIGH); break;
-		case WAVE_IN: resetMyoDebugPins(); digitalWrite(WAVE_IN +2, HIGH); break;
-		case WAVE_OUT: resetMyoDebugPins(); digitalWrite(WAVE_OUT + 2, HIGH); break;
-		case FINGER_SPREAD: resetMyoDebugPins(); digitalWrite(FINGER_SPREAD + 2, HIGH); break;
+		case DOUBLE_TAP: resetMyoDebugPins(); digitalWrite(DOUBLE_TAP + 2, HIGH); Serial.println("Double Tap"); break;
+		case FIST: resetMyoDebugPins(); digitalWrite(FIST +2, HIGH);Serial.println("Fist"); break;
+		case WAVE_IN: resetMyoDebugPins(); digitalWrite(WAVE_IN +2, HIGH); Serial.println("Wave In");  break;
+		case WAVE_OUT: resetMyoDebugPins(); digitalWrite(WAVE_OUT + 2, HIGH); Serial.println("Wave_Out");  break;
+		case FINGER_SPREAD: resetMyoDebugPins(); digitalWrite(FINGER_SPREAD + 2, HIGH); Serial.println("Finger Spread"); break;
 		}
 		while (1) {
 
 		}
 		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, LOW);
 		//if myo was not at rest and then it comes to rest, 
-	*/	
+		
 
 	}
 

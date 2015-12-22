@@ -180,7 +180,7 @@ Code* Sceptre::storeCode(decode_results* results) {
 	code->codeLen = codeLen;
 	code->codeType = codeType;
 	code->codeValue = codeValue;
-	Serial.print("code value from inside : "); Serial.println(codeValue,HEX);
+	//Serial.print("code value from inside : "); Serial.println(codeValue,HEX);
 	code->toggle = toggle;
 	code->rawCodes = rawCodes;
 	//processing_previous_mapping_request = 1;
