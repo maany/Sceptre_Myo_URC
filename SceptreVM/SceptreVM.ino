@@ -11,7 +11,7 @@
 #include <sceptre.h>
 
 int RECV_PIN = 11;
-int BUTTON_PIN = 12;
+int FIST_LED = 12;
 int STATUS_PIN = 13;
 int MODE_SELECT_PIN = 7;
 int RECV_MODE_PIN = 8;
@@ -20,13 +20,13 @@ int PROCEED_SIGNAL_PIN = 10;
 // Device name
 #define DEMO_DEVICE_NAME "device1"
 
-
+int count = 0;
 Sceptre sceptre(RECV_PIN);
 decode_results results;
 void setup() {
 	Serial.begin(9600);
 	sceptre.irrecv.enableIRIn(); // Start the receiver
-	pinMode(BUTTON_PIN, INPUT); //Todo might not need button, as button was used to send code
+	//pinMode(BUTTON_PIN, INPUT); //Todo might not need button, as button was used to send code
 	pinMode(STATUS_PIN, OUTPUT);
 	pinMode(PROCEED_SIGNAL_PIN,INPUT);
 	pinMode(RECV_MODE_PIN, OUTPUT);
@@ -44,18 +44,19 @@ void loop() {
 	int mode = digitalRead(MODE_SELECT_PIN);
 	//send mode
 	if (mode == 1) {
-		digitalWrite(2, HIGH);
-		digitalWrite(3, HIGH);
+		digitalWrite(DOUBLE_TAP +2, HIGH);
+		digitalWrite(FIST_LED, HIGH);
 		int gestureCode;
-		//gestureCode = sceptre.myo.getGestureCode();
-		gestureCode = WAVE_OUT;
+		gestureCode = sceptre.myo.getGestureCode();
+		//gestureCode = WAVE_OUT;
 		Serial.println(sceptre.getActiveDevice()->gestureCodeMap[gestureCode].codeValue,HEX);
-		//sceptre.sendCode(1); // takes care of identifying myo gesture
-		while (1) {
-
-		}
-		digitalWrite(2, LOW);
-		digitalWrite(3, LOW);
+		
+		sceptre.sendCode(1); // takes care of identifying myo gesture
+		
+		digitalWrite(DOUBLE_TAP + 2, LOW);
+		digitalWrite(FIST_LED, LOW);
+		
+		delay(1000);
 		//digitalWrite(2, LOW);
 
 	}
@@ -86,7 +87,13 @@ void loop() {
 		// Press button to begin gesture mapping i.e enter step 2
 		//Step 2: detect Myo gesture
 		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, HIGH);
-		int gestureCode;
+		int gestureCode=-1;
+		switch (count) {
+		case 0: gestureCode = FIST; break;
+		case 1: gestureCode = WAVE_OUT; break;
+		case 2: gestureCode = WAVE_IN; break;
+		}
+		count++;
 		/*
 		Myo* myo = &sceptre.myo;
 		do{
@@ -94,17 +101,18 @@ void loop() {
 			delay(100);
 		} while (gestureCode == -1);
 		sceptre.tempGestureCode = gestureCode;
+		*/
 		// Debug via LED's
 		switch (gestureCode) {
 		case DOUBLE_TAP: resetMyoDebugPins(LOW); digitalWrite(DOUBLE_TAP + 2, HIGH); Serial.println("Double Tap"); break;
-		case FIST: resetMyoDebugPins(LOW); digitalWrite(FIST +2, HIGH);Serial.println("Fist"); break;
+		case FIST: resetMyoDebugPins(LOW); digitalWrite(FIST_LED, HIGH);Serial.println("Fist"); break;
 		case WAVE_IN: resetMyoDebugPins(LOW); digitalWrite(WAVE_IN +2, HIGH); Serial.println("Wave In");  break;
 		case WAVE_OUT: resetMyoDebugPins(LOW); digitalWrite(WAVE_OUT + 2, HIGH); Serial.println("Wave_Out");  break;
 		case FINGER_SPREAD: resetMyoDebugPins(LOW); digitalWrite(FINGER_SPREAD + 2, HIGH); Serial.println("Finger Spread"); break;
 		}
-		*/
-		delay(5000);
-		gestureCode = WAVE_OUT;
+		
+		//delay(5000);
+		//gestureCode = WAVE_OUT;
 		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, LOW);
 		//Step 3 Store gesture
 		
@@ -132,7 +140,7 @@ void loop() {
 }
 void resetMyoDebugPins(int mode) {
 	digitalWrite(DOUBLE_TAP + 2, mode);
-	digitalWrite(FIST + 2, mode);
+	digitalWrite(FIST_LED, mode);
 	digitalWrite(WAVE_IN + 2, mode);
 	digitalWrite(WAVE_OUT + 2, mode);
 	digitalWrite(FINGER_SPREAD + 2,mode);

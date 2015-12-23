@@ -70,5 +70,6 @@ public:
 	void saveCurrentMapping();
 	Code* decodeAndGetCode();
 };
+void resetMyoDebugPinsCPP(int mode);
 #endif
 

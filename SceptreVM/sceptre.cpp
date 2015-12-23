@@ -64,20 +64,34 @@ Device* Sceptre::getActiveDevice() {
 void Sceptre::sendCode(int repeat) {
 	Device* activeDevice = &deviceList[activeDeviceIndex];
 	
-	int gestureCode = myo.getGestureCode();
-	if (gestureCode == -1) {
+	int gestureCode;
+	gestureCode = WAVE_OUT;
+	/*
+	gestureCode = myo.getGestureCode();
+	switch (gestureCode) {
+	case -1: 
 		Serial.println("myo at rest");
 		digitalWrite(SEND_MODE_DETECTED_MYO_GESTURE, LOW);
+		::resetMyoDebugPinsCPP(LOW);
 		return;
+	case DOUBLE_TAP: ::resetMyoDebugPinsCPP(LOW); digitalWrite(DOUBLE_TAP + 2, HIGH); Serial.println("Double Tap"); break;
+	case FIST: ::resetMyoDebugPinsCPP(LOW); digitalWrite(12, HIGH); Serial.println("Fist"); break;
+	case WAVE_IN: ::resetMyoDebugPinsCPP(LOW); digitalWrite(WAVE_IN + 2, HIGH); Serial.println("Wave In");  break;
+	case WAVE_OUT: ::resetMyoDebugPinsCPP(LOW); digitalWrite(WAVE_OUT + 2, HIGH); Serial.println("Wave_Out");  break;
+	case FINGER_SPREAD: ::resetMyoDebugPinsCPP(LOW); digitalWrite(FINGER_SPREAD + 2, HIGH); Serial.println("Finger Spread"); break;
 	}
+	*/
+	delay(2000);
 	Code code = activeDevice->gestureCodeMap[gestureCode];
-	digitalWrite(SEND_MODE_DETECTED_MYO_GESTURE, HIGH);
-	delay(200);
-	digitalWrite(SEND_MODE_DETECTED_MYO_GESTURE, LOW);
-	delay(200);
-	digitalWrite(SEND_MODE_DETECTED_MYO_GESTURE, HIGH);
-	delay(200);
-	digitalWrite(SEND_MODE_DETECTED_MYO_GESTURE, LOW);
+	::resetMyoDebugPinsCPP(HIGH);
+	delay(100);
+	::resetMyoDebugPinsCPP(LOW);
+	delay(100);
+	::resetMyoDebugPinsCPP(HIGH);
+	delay(100);
+	::resetMyoDebugPinsCPP(LOW);
+	delay(100);
+	::resetMyoDebugPinsCPP(HIGH);
 	int codeType = code.codeType;
 	unsigned long codeValue = code.codeValue;
 	unsigned int* rawCodes = code.rawCodes;
@@ -123,6 +137,7 @@ void Sceptre::sendCode(int repeat) {
 		irsend.sendRaw(rawCodes, codeLen, 38);
 		Serial.println("Sent raw");
 	}
+	::resetMyoDebugPinsCPP(LOW);
 }
 // Stores the code for later playback
 // Most of this code is just logging
@@ -240,6 +255,13 @@ int Myo::getGestureCode() {
 		break;
 	}
 	return gestureCode;
+}
+void resetMyoDebugPinsCPP(int mode) {
+	digitalWrite(DOUBLE_TAP + 2, mode);
+	digitalWrite(12, mode);
+	digitalWrite(WAVE_IN + 2, mode);
+	digitalWrite(WAVE_OUT + 2, mode);
+	digitalWrite(FINGER_SPREAD + 2, mode);
 }
 
 
