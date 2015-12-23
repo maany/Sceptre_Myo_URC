@@ -17,7 +17,8 @@ int MODE_SELECT_PIN = 7;
 int RECV_MODE_PIN = 8;
 int RECV_MODE_WAITING_FOR_MYO_PIN = 9;
 int SEND_MODE_PIN = 10;
-// Debug pins for myo gesture
+// Device name
+#define DEMO_DEVICE_NAME "device1"
 
 
 Sceptre sceptre(RECV_PIN);
@@ -31,6 +32,9 @@ void setup() {
 	pinMode(RECV_MODE_PIN, OUTPUT);
 	pinMode(MODE_SELECT_PIN,INPUT);
 	sceptre.results.value = -1;
+	//add a new Device, since this is the first device added, it is activated by default
+	Device device = Device(DEMO_DEVICE_NAME);
+	sceptre.addDevice(device);
 }
 int lastButtonState;
 // the loop function runs over and over again until power down or reset
@@ -65,21 +69,21 @@ void loop() {
 				delay(100);
 			}
 		} while (prevCodeValue!=code->codeValue);
-		Serial.print("Code received is : "); Serial.println(code->codeValue,HEX);
-		
+		Serial.print("Code received for mapping is : "); Serial.println(code->codeValue,HEX);
+		sceptre.tempCode = code;
 		digitalWrite(RECV_MODE_PIN, LOW);
 		
 		// Press button to begin gesture mapping i.e enter step 2
 		//Step 2: detect Myo gesture
-		
 		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, HIGH);
-		Myo* myo = &sceptre.myo;
 		int gestureCode;
+		/*
+		Myo* myo = &sceptre.myo;
 		do{
 			gestureCode = myo->getGestureCode();
 			delay(100);
 		} while (gestureCode == -1);
-
+		sceptre.tempGestureCode = gestureCode;
 		// Debug via LED's
 		switch (gestureCode) {
 		case DOUBLE_TAP: resetMyoDebugPins(); digitalWrite(DOUBLE_TAP + 2, HIGH); Serial.println("Double Tap"); break;
@@ -88,9 +92,23 @@ void loop() {
 		case WAVE_OUT: resetMyoDebugPins(); digitalWrite(WAVE_OUT + 2, HIGH); Serial.println("Wave_Out");  break;
 		case FINGER_SPREAD: resetMyoDebugPins(); digitalWrite(FINGER_SPREAD + 2, HIGH); Serial.println("Finger Spread"); break;
 		}
-		//Step 3 Store gesture
-		Serial.println("store gesture");
+		*/
+		delay(5000);
+		gestureCode = WAVE_OUT;
 		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, LOW);
+		//Step 3 Store gesture
+		
+		//sceptre.saveCurrentMapping();
+		sceptre.getActiveDevice()->gestureCodeMap[gestureCode] = *code;
+		Serial.print("Mapping stored is : "); Serial.print(gestureCode); Serial.print(" "); Serial.println(sceptre.getActiveDevice()->gestureCodeMap[gestureCode].codeValue,HEX);
+		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, HIGH);
+		digitalWrite(RECV_MODE_PIN, HIGH);
+		
+		while (1) {
+
+		}
+		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, LOW);
+		digitalWrite(RECV_MODE_PIN, LOW);
 		//if myo was not at rest and then it comes to rest, 
 		
 

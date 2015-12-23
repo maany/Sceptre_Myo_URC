@@ -29,21 +29,30 @@ Device::Device() {
 	id = superId;
 	superId = superId + 1;
 	name = "unnamed device";
+	gestureCodeMap = new Code[GESTURE_MAP_SIZE];
 }
 // This constructor sets the given name and id for a device
 Device::Device(char* name) {
 	id = superId;
 	superId++;
 	this->name = name;
+	gestureCodeMap = new Code[GESTURE_MAP_SIZE];
 }
 Sceptre::Sceptre(int recv_pin):irrecv(recv_pin) {
 	irrecv= IRrecv(recv_pin);
-
+	deviceList = new Device[SCEPTRE_NO_OF_DEVICES];
 }
-
-int Sceptre::addDevice(Device* device) {
-	int returnVal = 1;
-	return returnVal;
+// TODO refine logic, detect overflow
+int Sceptre::addDevice(Device device) {
+	if (activeDeviceIndex <= 0)
+		activeDeviceIndex = 0;
+	else if (activeDeviceIndex < SCEPTRE_NO_OF_DEVICES - 1)
+		activeDeviceIndex++;
+	else {
+		return 0;
+	}
+	deviceList[activeDeviceIndex] = device;
+	return 1;
 }
 int Sceptre::activateDevice(Device* device) {
 	int returnVal = 1;
@@ -188,17 +197,10 @@ Code* Sceptre::storeCode(decode_results* results) {
 	return code;
 	//deviceList[activeDeviceIndex].gestureCodeMap[gestureCode] = code;	
 }
-// Call in the loop method of arduino. (so it automatically becomes recursive)
-// When in training mode, and a code is received processing_previous_mapping_request becomes 1
-// then, when the arduino enters training mode again in loop, this method waits for a myo gesture 
-// other than rest to map the received code to.
-void Sceptre::mapCodeToGesture(Code* code) {
-	// if there is no code to be mapped or myo is at rest then return
-	/*int gestureCode = myo.getGestureCode();
-	if (!processing_previous_mapping_request || gestureCode == -1)
-		return;
-	deviceList[activeDeviceIndex].gestureCodeMap[gestureCode] = *code;
-	*/
+
+void Sceptre::saveCurrentMapping() {
+	getActiveDevice()->gestureCodeMap[tempGestureCode] = *tempCode;
+	Serial.print("Mapping stored is : "); Serial.print(tempGestureCode); Serial.print(" "); Serial.println(getActiveDevice()->gestureCodeMap[tempGestureCode].codeValue);
 }
 // TODO To check if code is invalid, codeLength will be 0 or lesser
 Code* Sceptre::decodeAndGetCode() {

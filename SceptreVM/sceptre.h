@@ -8,7 +8,7 @@ This header file defines the wrappers from MyoController and IRRemote  libraries
 #include "IRremote.h"
 #include "IRremoteInt.h"
 #include "MyoController.h"
-#define SCEPTRE_NO_OF_DEVICES 5
+#define SCEPTRE_NO_OF_DEVICES 1
 #define GESTURE_MAP_SIZE 5
 //===============================
 // Gesture to Array Index Mapping
@@ -45,27 +45,29 @@ public:
 	Device();
 	Device(char* name);
 	char* name;
-	Code gestureCodeMap[GESTURE_MAP_SIZE];
+	Code* gestureCodeMap;
 };
 // It combines myo and IR tranciever module and represents the final wearable device capable of 
 // sending and receiving ir signals
 class Sceptre {
 private:
-	Device deviceList[SCEPTRE_NO_OF_DEVICES];
+	Device* deviceList;
 	int activeDeviceIndex = 0;
 	IRsend irsend;
 //	int processing_previous_mapping_request = 0;
 public:
+	Code* tempCode;
+	int tempGestureCode;
 	Myo myo;
 	decode_results results;
 	IRrecv irrecv; // decodes the incoming signal
 	Sceptre(int recv_pin);
-	int addDevice(Device* device);
+	int addDevice(Device device);
 	Device* getActiveDevice();
 	int activateDevice(Device* device);
 	void sendCode(int repeat);
 	Code* storeCode(decode_results *results); // turns on mapping request and returns the code to be mapped
-	void mapCodeToGesture(Code* code);// wait till a gesture is received, then map the code to it as per mapping request
+	void saveCurrentMapping();
 	Code* decodeAndGetCode();
 };
 #endif
