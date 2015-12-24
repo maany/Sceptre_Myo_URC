@@ -65,8 +65,8 @@ void Sceptre::sendCode(int repeat) {
 	Device* activeDevice = &deviceList[activeDeviceIndex];
 	
 	int gestureCode;
-	gestureCode = WAVE_OUT;
-	/*
+	//gestureCode = WAVE_OUT;
+	
 	gestureCode = myo.getGestureCode();
 	switch (gestureCode) {
 	case -1: 
@@ -80,7 +80,7 @@ void Sceptre::sendCode(int repeat) {
 	case WAVE_OUT: ::resetMyoDebugPinsCPP(LOW); digitalWrite(WAVE_OUT + 2, HIGH); Serial.println("Wave_Out");  break;
 	case FINGER_SPREAD: ::resetMyoDebugPinsCPP(LOW); digitalWrite(FINGER_SPREAD + 2, HIGH); Serial.println("Finger Spread"); break;
 	}
-	*/
+	
 	delay(2000);
 	Code code = activeDevice->gestureCodeMap[gestureCode];
 	::resetMyoDebugPinsCPP(HIGH);

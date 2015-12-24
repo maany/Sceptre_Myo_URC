@@ -88,20 +88,22 @@ void loop() {
 		//Step 2: detect Myo gesture
 		digitalWrite(RECV_MODE_WAITING_FOR_MYO_PIN, HIGH);
 		int gestureCode=-1;
+		/*
 		switch (count) {
 		case 0: gestureCode = FIST; break;
 		case 1: gestureCode = WAVE_OUT; break;
 		case 2: gestureCode = WAVE_IN; break;
 		}
 		count++;
-		/*
+		*/
+		
 		Myo* myo = &sceptre.myo;
 		do{
 			gestureCode = myo->getGestureCode();
 			delay(100);
 		} while (gestureCode == -1);
 		sceptre.tempGestureCode = gestureCode;
-		*/
+		
 		// Debug via LED's
 		switch (gestureCode) {
 		case DOUBLE_TAP: resetMyoDebugPins(LOW); digitalWrite(DOUBLE_TAP + 2, HIGH); Serial.println("Double Tap"); break;
